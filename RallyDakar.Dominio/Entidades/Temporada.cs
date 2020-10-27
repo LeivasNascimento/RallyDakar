@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 
 namespace RallyDakar.Dominio.Entidades
 {
     public class Temporada
     {
         public int Id { get; set; }
+
         public string Nome { get; set; }
         public DateTime DataInicio { get; set; }
         public DateTime? DataFim { get; set; }
@@ -25,11 +28,17 @@ namespace RallyDakar.Dominio.Entidades
         {
             if(equipe != null)
             {
-                if(!string.IsNullOrEmpty(equipe.Nome))
+                if(equipe.Validado())
                 {
                     this.Equipes.Add(equipe);
                 }
             }
+        }
+
+        public Equipe ObterPorId(int id)
+        {
+            // return Equipes.Where(x => x.Id == id).ToList().FirstOrDefault();
+            return Equipes.FirstOrDefault(x => x.Id.Equals(id));
         }
 
     }

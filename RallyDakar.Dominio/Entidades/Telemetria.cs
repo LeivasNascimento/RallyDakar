@@ -8,7 +8,9 @@ namespace RallyDakar.Dominio.Entidades
         public int TemporadaId { get; set; }
         public int PilotoId { get; set; }
         public DateTime Data { get; set; }
+        public DateTime DataServidor { get; set; }
         public TimeSpan Hora { get; set; } // que vem do carro n do servidor
+        public TimeSpan HoraServidor { get; set; } 
         public decimal Latitude { get; set; }
         public decimal Longitude { get; set; }
         public decimal PercentualCombustivel { get; set; }

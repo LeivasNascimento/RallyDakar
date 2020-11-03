@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -36,9 +37,10 @@ namespace RallyDakar.API
             services.AddDbContext<RallyDbContexto>(opt => opt.UseInMemoryDatabase("RallyDb"), 
                 ServiceLifetime.Scoped,
                 ServiceLifetime.Scoped
-                ); 
+                );
 
-            services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson();
+            
             services.AddScoped<IPilotoRepository, PilotoRepository>();
             // linha 42: A INJEÇÃO DE DEPENDÊNCIA NO CONSTRUTOR DO PilotoRepository JÁ É OBTIDA 
             // AO EXECUTAR O PROJETO DA API, DEVIDA LINHA 36, ONDE HÁ A INSTANCIAÇÃO DA CLASSE RallyDbContexto
@@ -46,6 +48,7 @@ namespace RallyDakar.API
             // RallyDbContexto NO PARAMETRO DO CONSTRUTOR DE PilotoRepository (OU QUALQUER OUTRO REPOSITORY
             // ADICIONADO EM AddScoped EM ConfigureServices
 
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
         }
 
@@ -56,7 +59,7 @@ namespace RallyDakar.API
             {
                 app.UseDeveloperExceptionPage();
             }
-
+             
             app.UseRouting();
 
             app.UseAuthorization();

@@ -32,9 +32,21 @@ namespace RallyDakar.Dominio.Repositorios
                 _rallyDbContexto.SaveChanges();
             }*/
 
-            _rallyDbContexto.Attach(piloto); // o EF traqueia o piloto na coleção; até então estava 'solta'
-            _rallyDbContexto.Entry(piloto).State = Microsoft.EntityFrameworkCore.EntityState.Modified; // considerando todos os campos; dá para fazer por campo individualmente
+            //se for PUT
+            if(_rallyDbContexto.Entry(piloto).State == Microsoft.EntityFrameworkCore.EntityState.Detached)
+            {
+                _rallyDbContexto.Attach(piloto); // o EF traqueia o piloto na coleção; até então estava 'solta'
+                _rallyDbContexto.Entry(piloto).State = Microsoft.EntityFrameworkCore.EntityState.Modified; // considerando todos os campos; dá para fazer por campo individualmente
+               
+            }
+            else //senão, é PATCH
+            {
+                _rallyDbContexto.Update(piloto);
+            }
+
             _rallyDbContexto.SaveChanges();
+
+
         }
 
         public void Excluir(Piloto piloto)

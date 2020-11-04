@@ -109,6 +109,7 @@ namespace RallyDakar.API.Controllers
             //piloto: instância solta, n é gerenciada pelo entityFramework
             // se mandar atualizar, o EF n conhece essa instância (hash da instância)
             // 
+
             try
             {
                 if(_pilotoRepository.Existe(pilotoModelo.Id))
@@ -125,12 +126,13 @@ namespace RallyDakar.API.Controllers
             }
             catch (Exception ex)
             {
+                
                 return StatusCode(500, "Ocorreu um erro interno no sistema. Por favor entre em contato com suporte.");
             }
         } 
         
         [HttpPatch("{id}")] //atualiza parcialmente
-        public IActionResult AtualizarParcialmente(int id, [FromBody] JsonPatchDocument<Piloto> patchPiloto)
+        public IActionResult AtualizarParcialmente(int id, [FromBody] JsonPatchDocument<PilotoModelo> patchPilotoModelo)
         { //JsonPatchDocument<Piloto>; ex: vem do postman, a parte fragmentada, ou seja, só alguns campos
             // n envia o objeto com todos os campos para serem atualizados, por isso usa o patch
             // o .net core já faz isso automaticamente, mas aqui está em modo de exemplo
@@ -140,7 +142,12 @@ namespace RallyDakar.API.Controllers
                     return NotFound();
 
                 var piloto = _pilotoRepository.Obter(id); //tem o hash do registro do EF
-                patchPiloto.ApplyTo(piloto); //ApplyTo: pega as n alterações e aplica na instancia do objeto do EF
+                var pilotoModelo = _mapper.Map<PilotoModelo>(piloto);
+
+                patchPilotoModelo.ApplyTo(pilotoModelo); //ApplyTo: pega as n alterações e aplica na instancia do objeto do EF
+
+                piloto = _mapper.Map(pilotoModelo, piloto); //pega o piloto do EF e aplica as alterações aplicadas a pilotoModelo e joga no piloto
+                
                 _pilotoRepository.Atualizar(piloto);
 
                 return NoContent();

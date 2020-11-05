@@ -42,6 +42,7 @@ namespace RallyDakar.API
             services.AddControllers().AddNewtonsoftJson();
             
             services.AddScoped<IPilotoRepository, PilotoRepository>();
+            services.AddScoped<ITelemetriaRepositorio, TelemetriaRepositorio>();
             // linha 42: A INJEÇÃO DE DEPENDÊNCIA NO CONSTRUTOR DO PilotoRepository JÁ É OBTIDA 
             // AO EXECUTAR O PROJETO DA API, DEVIDA LINHA 36, ONDE HÁ A INSTANCIAÇÃO DA CLASSE RallyDbContexto
             // E AUTOMATICAMENTE NA LINHA 42, A INEJÇÃO DE DEPENDÊNCIA IRÁ 'PASSAR' A INSTANCIA DA CLASSE

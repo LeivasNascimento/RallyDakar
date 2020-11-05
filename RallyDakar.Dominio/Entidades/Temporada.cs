@@ -26,9 +26,9 @@ namespace RallyDakar.Dominio.Entidades
          */
         public void AdicionarEquipe(Equipe equipe)
         {
-            if(equipe != null)
+            if(equipe != null && equipe.Validado())
             {
-                if(equipe.Validado())
+                if(!Equipes.Any(e => e.Id == equipe.Id))
                 {
                     this.Equipes.Add(equipe);
                 }

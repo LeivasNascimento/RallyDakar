@@ -16,7 +16,7 @@ namespace RallyDakar.API.Controllers
     [Route("api/pilotos")]
     public class PilotoController : ControllerBase
     {
-        private readonly IPilotoRepository _pilotoRepository;
+        private readonly IPilotoRepository _pilotoRepository; //TEM ARQUITETURA QUE N UTILIZA ISTO DIRETAMENTE
         private readonly IMapper _mapper;
         //serve para pegar uma classe A do tipo A e instancia uma classe B do tipo B com campos iguais
         private readonly ILogger<PilotoController> _logger;

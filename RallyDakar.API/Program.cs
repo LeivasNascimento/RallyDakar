@@ -19,15 +19,27 @@ namespace RallyDakar.API
                 .GetCurrentClassLogger();
 
             logger.Info("Iniciando o aplicativo");
+            
+            try
+            {
+                CreateHostBuilder(args).Build().Run();
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "Aplicação parou de rodar");
+                
+            }finally
+            {
+                NLog.LogManager.Shutdown();
+            }
 
-            CreateHostBuilder(args).Build().Run();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<Startup>();
+                    webBuilder.UseStartup<Startup>().UseNLog();
                 });
     }
 }

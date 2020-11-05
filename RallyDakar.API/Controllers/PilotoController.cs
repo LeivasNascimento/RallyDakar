@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using RallyDakar.API.Model;
 using RallyDakar.Dominio.Entidades;
 using RallyDakar.Dominio.Interfaces;
@@ -16,13 +17,15 @@ namespace RallyDakar.API.Controllers
     public class PilotoController : ControllerBase
     {
         private readonly IPilotoRepository _pilotoRepository;
-        private readonly IMapper _mapper; 
+        private readonly IMapper _mapper;
         //serve para pegar uma classe A do tipo A e instancia uma classe B do tipo B com campos iguais
+        private readonly ILogger<PilotoController> _logger;
 
-        public PilotoController(IPilotoRepository pilotoRepository, IMapper mapper) // é o asp.net core que passa a 
+        public PilotoController(IPilotoRepository pilotoRepository, IMapper mapper, ILogger<PilotoController> logger) // é o asp.net core que passa a 
         {
             _pilotoRepository = pilotoRepository;
             _mapper = mapper;
+            _logger = logger;
             //serve para pegar uma classe A do tipo A e instancia uma classe B do tipo B com campos iguais
 
         }
@@ -48,6 +51,7 @@ namespace RallyDakar.API.Controllers
                 //return BadRequest("Ocorreu um erro interno no sistema. Por favor entre em contato com suporte.");
                 // registrar em log, seja em arquivo ou base de dados
                 // _logger.Info(ex.ToString());
+                _logger.LogError(ex.ToString());
                 return StatusCode(500, "Ocorreu um erro interno no sistema. Por favor entre em contato com suporte.");
             }
         }
@@ -69,6 +73,7 @@ namespace RallyDakar.API.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.ToString());
                 return StatusCode(500, "Ocorreu um erro interno no sistema.Por favor entre em contato com suporte.");
             }
         }
@@ -78,26 +83,37 @@ namespace RallyDakar.API.Controllers
         {
             try
             {
+               
                 /*Piloto piloto = new Piloto();
                 piloto.Id = pilotoModelo.Id;
                 piloto.Nome = pilotoModelo.Nome;*/
+                _logger.LogInformation("mapeando piloto modelo");
 
                 var piloto = _mapper.Map<Piloto>(pilotoModelo);
 
+                _logger.LogInformation($"verificando se o piloto id == {piloto.Id} existe na base de dados em memória");
                 if (_pilotoRepository.Existe(piloto.Id))
+                {
+                    _logger.LogWarning($"piloto id = {piloto.Id} já existe.");
                     return StatusCode(409, "já existe um piloto com este identificador");
+                }
 
                 //[FromBody] - como o asp.net core vai receber os dados da requisição (nesse caso do corpo do json)
                 // poderia ser de um formulário, etc
+                _logger.LogInformation($"adicionando piloto id {piloto.Id}");
                 _pilotoRepository.Adicionar(piloto);
+                _logger.LogInformation("piloto inseriu com sucesso!");
 
+                _logger.LogInformation("mapeando piloto inserido para piloto modelo");
                 var pilotoModeloRetorno = _mapper.Map<PilotoModelo>(piloto);
 
                 //return Ok("adicionou");
+                _logger.LogInformation("retornando piloto modelo novo");
                 return CreatedAtRoute("Obter", new { id = piloto.Id }, pilotoModeloRetorno);
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.ToString()); 
                 return StatusCode(500, "Ocorreu um erro interno no sistema. Por favor entre em contato com suporte.");
             }
            
@@ -126,7 +142,7 @@ namespace RallyDakar.API.Controllers
             }
             catch (Exception ex)
             {
-                
+                _logger.LogError(ex.ToString());
                 return StatusCode(500, "Ocorreu um erro interno no sistema. Por favor entre em contato com suporte.");
             }
         } 
@@ -139,7 +155,10 @@ namespace RallyDakar.API.Controllers
             try
             {
                 if (!_pilotoRepository.Existe(id))
+                {
+                    _logger.LogWarning($"pilotoId:{id} não existe");
                     return NotFound();
+                }
 
                 var piloto = _pilotoRepository.Obter(id); //tem o hash do registro do EF
                 var pilotoModelo = _mapper.Map<PilotoModelo>(piloto);
@@ -147,7 +166,7 @@ namespace RallyDakar.API.Controllers
                 patchPilotoModelo.ApplyTo(pilotoModelo); //ApplyTo: pega as n alterações e aplica na instancia do objeto do EF
 
                 piloto = _mapper.Map(pilotoModelo, piloto); //pega o piloto do EF e aplica as alterações aplicadas a pilotoModelo e joga no piloto
-                
+                _logger.LogInformation($"piloto id {id} atualizado com sucesso!");
                 _pilotoRepository.Atualizar(piloto);
 
                 return NoContent();
@@ -155,6 +174,7 @@ namespace RallyDakar.API.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.ToString());
                 return StatusCode(500, "Ocorreu um erro interno no sistema. Por favor entre em contato com suporte.");
             }
         }
@@ -178,10 +198,12 @@ namespace RallyDakar.API.Controllers
                 var piloto = _pilotoRepository.Obter(id);
                 _pilotoRepository.Excluir(piloto);
                 // return Ok("excluiu");
+                _logger.LogInformation($"piloto { id } excluído com sucesso");
                 return NoContent();
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.ToString());
                 return StatusCode(500, "Ocorreu um erro interno no sistema. Por favor entre em contato com suporte.");
             }
         }
